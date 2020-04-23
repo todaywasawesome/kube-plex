@@ -113,6 +113,11 @@ func generatePod(cwd string, env []string, args []string) *corev1.Pod {
 			Containers: []corev1.Container{
 				{
 					Name:       "plex",
+					Resources: corev1.ResourceRequirements{
+						Limits: corev1.ResourceList{
+							gpuResourceName: "gpu.intel.com/i915",
+						},
+					},
 					Command:    args,
 					Image:      pmsImage,
 					Env:        envVars,
