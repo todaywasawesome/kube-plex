@@ -26,6 +26,11 @@ var transcodePVC = os.Getenv("TRANSCODE_PVC")
 // pms namespace
 var namespace = os.Getenv("KUBE_NAMESPACE")
 
+// Hardware access parameters for hw transcoding
+var resource = os.Getenv("RESOURCE_NAME") // example gpu.intel.com/i915
+var resource_limit = os.Getenv("RESOURCE_TYPE") // example 1
+var resource_request = os.Getenv("RESOURCE_INT") // example 1
+
 // image for the plexmediaserver container containing the transcoder. This
 // should be set to the same as the 'master' pms server
 var pmsImage = os.Getenv("PMS_IMAGE")
@@ -101,6 +106,7 @@ func rewriteArgs(in []string) {
 
 func generatePod(cwd string, env []string, args []string) *corev1.Pod {
 	envVars := toCoreV1EnvVar(env)
+	var resourcelimits int64 = 1
 	return &corev1.Pod{
 		ObjectMeta: metav1.ObjectMeta{
 			GenerateName: "pms-elastic-transcoder-",
@@ -115,7 +121,8 @@ func generatePod(cwd string, env []string, args []string) *corev1.Pod {
 					Name:       "plex",
 					Resources: corev1.ResourceRequirements{
 						Limits: corev1.ResourceList{
-							gpuResourceName: "gpu.intel.com/i915",
+							// "gpu.intel.com/i915": resourcelimits,
+							"gpu.intel.com/i915": resource.MustParse(resourcelimits),
 						},
 					},
 					Command:    args,
